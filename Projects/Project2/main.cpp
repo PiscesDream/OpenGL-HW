@@ -26,14 +26,12 @@ using namespace glm;
  
 #include <dirent.h>
 
-#include "common/shader.hpp"
-#include "common/texture.hpp"
-#include "common/controls.hpp"
-#include "common/objloader.hpp"
-#include "common/vboindexer.hpp"
-#include "common/quaternion_utils.hpp"
-
-
+#include "../common/shader.hpp"
+#include "../common/texture.hpp"
+#include "../common/controls.hpp"
+#include "../common/objloader.hpp"
+#include "../common/vboindexer.hpp"
+#include "../common/quaternion_utils.hpp"
 
 // Customize code
 vec3 gPosition( 0.0f, 0.0f, 0.0f);
@@ -162,6 +160,7 @@ char gModels[10][1000];
 #define __createModelCallBack(ind)\
 	void __modelcallback##ind (void*clientdata) {\
 		loadModel(gModels[ind]);\
+		strcpy(gModelFilename, gModels[ind]);\
 	};
 __createModelCallBack(0)
 __createModelCallBack(1)
@@ -192,7 +191,11 @@ GLuint gTexture;
 char gTextures[10][1000];
 #define __createTextureCallBack(ind)\
 	void __texturecallback##ind (void*clientdata) {\
-		gTexture=loadBMP_custom(gTextures[ind]);\
+		if (strstr(gTextures[ind], "DDS")!=0)\
+			gTexture=loadDDS(gTextures[ind]);\
+		else\
+			gTexture=loadBMP_custom(gTextures[ind]);\
+		strcpy(gTextureFilename, gTextures[ind]);\
 	};
 __createTextureCallBack(0)
 __createTextureCallBack(1)
