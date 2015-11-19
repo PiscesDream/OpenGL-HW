@@ -14,7 +14,18 @@ enum {
 };
 
 using std::vector;
-bool parseMap(char * filename, vector<glm::vec3> &vertices, vector<glm::vec2> &uvs, vector<glm::vec3> &normals);
+
+class CMap{
+public:
+	int n, m, sx, sy, ex, ey;
+    float w, l, h; 
+    int map[MAXN+2][MAXN+2] = {0};
+	double maph[MAXN + 2][MAXN + 2];
+
+	CMap();
+	~CMap();
+	bool parseMap(char * filename, vector<glm::vec3> &vertices, vector<glm::vec2> &uvs, vector<glm::vec3> &normals);
+};
 
 #endif
 

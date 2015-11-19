@@ -15,16 +15,52 @@ inline int parseChar(char c) {
     return -1;
 }
 
-bool parseMap(char * filename, vector<glm::vec3> &vertices, vector<glm::vec2> &uvs, vector<glm::vec3> &normals) {
+#define AddGroudPoint(i,j,dx,dy) \
+	vertices.push_back(Params::cell_width*glm::vec3(i-dx, j-dy, maph[i-dx][j-dy]));\
+	uvs.push_back(glm::vec2(dx,dy));\
+	normals.push_back(glm::vec3(0, 0, 1));
+#define AddGround(i,j)\
+	AddGroudPoint(i, j, 0, 0);\
+	AddGroudPoint(i, j, 1, 0);\
+	AddGroudPoint(i, j, 1, 1);\
+	AddGroudPoint(i, j, 0, 0);\
+	AddGroudPoint(i, j, 0, 1);\
+	AddGroudPoint(i, j, 1, 1);
+
+#define AddSameNormalRect(p1, p2, p3, p4, n)\
+	vertices.push_back(p1);\
+	vertices.push_back(p2);\
+	vertices.push_back(p3);\
+	uvs.push_back(glm::vec2(0, 0));\
+	uvs.push_back(glm::vec2(1, 0));\
+	uvs.push_back(glm::vec2(0, 1));\
+	normals.push_back(n);\
+	normals.push_back(n);\
+	normals.push_back(n);\
+	vertices.push_back(p2);\
+	vertices.push_back(p3);\
+	vertices.push_back(p4);\
+	uvs.push_back(glm::vec2(1, 0));\
+	uvs.push_back(glm::vec2(0, 1));\
+	uvs.push_back(glm::vec2(1, 1));\
+	normals.push_back(n);\
+	normals.push_back(n);\
+	normals.push_back(n);
+
+
+CMap::~CMap() {
+};
+
+CMap::CMap() {
+}
+
+
+bool CMap::parseMap(char * filename, vector<glm::vec3> &vertices, vector<glm::vec2> &uvs, vector<glm::vec3> &normals) {
     ifstream file(filename);
 	if (!file.is_open()) return false;
 	
     // start to read file
     // exception handler should be added
-    int n, m, sx, sy, ex, ey;
-    float w, l, h; 
-    int map[MAXN+2][MAXN+2] = {0};
-
     file >> n >> m
 		 >> sx >> sy
 		 >> ex >> ey
@@ -50,52 +86,43 @@ bool parseMap(char * filename, vector<glm::vec3> &vertices, vector<glm::vec2> &u
 
 
 	// floor
-	double maph[MAXN + 2][MAXN + 2];
-	for (int i = 0; i <= n + 1; ++i)
-		for (int j = 0; j <= m + 1; ++j) {
+	for (int i = 0; i <= n + 2; ++i)
+		for (int j = 0; j <= m + 2; ++j) {
 			maph[i][j] = Params::ground_max_height*rand() / RAND_MAX;
 			if (i == 0) continue;
 			if (j == 0) continue;
 
-			vertices.push_back(glm::vec3(i, j, maph[i][j]));
-			vertices.push_back(glm::vec3(i-1, j, maph[i-1][j]));
-			vertices.push_back(glm::vec3(i-1, j-1, maph[i-1][j-1]));
-			uvs.push_back(glm::vec2(0, 0));
-			uvs.push_back(glm::vec2(1, 0));
-			uvs.push_back(glm::vec2(1, 1));
-			normals.push_back(glm::vec3(0, 0, 1));
-			normals.push_back(glm::vec3(0, 0, 1));
-			normals.push_back(glm::vec3(0, 0, 1));
-
-			vertices.push_back(glm::vec3(i, j, maph[i][j]));
-			vertices.push_back(glm::vec3(i, j-1, maph[i][j-1]));
-			vertices.push_back(glm::vec3(i-1, j-1, maph[i-1][j-1]));
-			uvs.push_back(glm::vec2(0, 0));
-			uvs.push_back(glm::vec2(0, 1));
-			uvs.push_back(glm::vec2(1, 1));
-			normals.push_back(glm::vec3(0, 0, 1));
-			normals.push_back(glm::vec3(0, 0, 1));
-			normals.push_back(glm::vec3(0, 0, 1));
+			AddGround(i, j);
 		}
 
-	cout << vertices.size() << ' ' << uvs.size() << ' ' << normals.size() << endl;
+	// Walls 
+	const float kxy[4][3][2] = { {{1, 0}, {0, -1}, {0, 1}},
+								{{-1, 0}, {0, -1}, {0, 1}},
+								{{0, 1}, {1, 0}, {-1, 0}},
+								{{0, -1}, {1, 0}, {-1, 0}} };
+	for (int i = 0; i <= n + 1; ++i)
+		for (int j = 0; j <= m + 1; ++j) 
+			if (map[i][j] == WALL) {
+				float r = 0.5 * Params::cell_width;
+				glm::vec3 center = (glm::vec3(i, j, 0) * 2.0f + 1.0f) * r;
+				for (int k = 0; k < 4; ++k) {
+					glm::vec3 p1(center.x + (kxy[k][0][0]+kxy[k][1][0]) * r, 
+								 center.y + (kxy[k][0][1]+kxy[k][1][1]) * r, 
+								0); 
+					glm::vec3 p2(center.x + (kxy[k][0][0]+kxy[k][2][0]) * r, 
+								 center.y + (kxy[k][0][1]+kxy[k][2][1]) * r, 
+								0); 
+					glm::vec3 p3 = p1; p3.z += Params::cell_height;
+					glm::vec3 p4 = p2; p4.z += Params::cell_height;
+					AddSameNormalRect(p1, p2, p3, p4, glm::vec3(kxy[k][0][0], kxy[k][0][1], 0));
+				}
+
+				glm::vec3 hh = glm::vec3(0, 0, Params::cell_height);
+				glm::vec3 p1 = glm::vec3(i, j, 0) * Params::cell_width+hh;
+				glm::vec3 p2 = glm::vec3(i+1, j, 0) * Params::cell_width+hh;
+				glm::vec3 p3 = glm::vec3(i, j+1, 0) * Params::cell_width+hh;
+				glm::vec3 p4 = glm::vec3(i+1, j+1, 0) * Params::cell_width+hh;
+				AddSameNormalRect(p1, p2, p3, p4, glm::vec3(0, 0, 1));
+			}
 }
 
-
-/*
-int main(int argc, char * argv[]) {
-
-    if (argc != 3) {
-        cerr << "Usage: ./mapParser <input> <output>" << endl;
-        return EXIT_FAILURE;
-    }
-
-    ifstream file(argv[1]);
-    if (!file.is_open()) {
-        cout << '"' << argv[1] << "\" not found." << endl;
-        return EXIT_FAILURE;
-    }
-
-    ofstream objfile(argv[2]);
-    objfile << "# map parsed from " << argv[1] << endl;
-}*/

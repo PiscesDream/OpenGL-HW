@@ -145,6 +145,9 @@
     <ClInclude Include="mapParser.h" />
     <ClInclude Include="parameters.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\WorkDir\Maps\example.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

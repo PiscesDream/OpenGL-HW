@@ -32,7 +32,10 @@ using namespace glm;
 #include "../common/objloader.hpp"
 #include "../common/vboindexer.hpp"
 #include "../common/quaternion_utils.hpp"
+
+
 #include "mapParser.h"
+CMap map;
 #include "parameters.h"
 
 // Just for display 
@@ -50,7 +53,7 @@ bool gLineModel = false;
 static GLfloat gPointSize(20.0);
 static GLfloat gLineWidth(1.0);
 
-static vec3 gLightPosition(4.0f, 4.0f, 4.0f);
+static vec3 gLightPosition(0.0f, 0.0f, 5.0f);
 static double gFPS = 0.0;
 
 static void MouseHandler(GLFWwindow* window, int button, int action, int mods) {
@@ -172,7 +175,10 @@ void loadMap(char * mapFilename) {
 	indexed_uvs.clear();
 	indexed_normals.clear();
 
-	bool res = parseMap(mapFilename, vertices, uvs, normals);
+	map.parseMap(mapFilename, vertices, uvs, normals);
+	gLightPosition = glm::vec3(map.n / 2 * Params::cell_width, 
+		map.m / 2* Params::cell_width, 
+		6);
 
 	indexVBO(vertices, uvs, normals, indices, indexed_vertices, indexed_uvs, indexed_normals);
  
