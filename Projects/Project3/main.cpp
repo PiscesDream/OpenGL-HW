@@ -32,82 +32,119 @@ using namespace glm;
 #include "../common/objloader.hpp"
 #include "../common/vboindexer.hpp"
 #include "../common/quaternion_utils.hpp"
+#include "mapParser.h"
+#include "parameters.h"
 
-// Customize code
+// Just for display 
 vec3 gPosition( 0.0f, 0.0f, 0.0f);
 quat gOrientation;
-vec3 gEulerAngles(0.0f,0.0f,0.0f);
+double gScaleAlpha = 1.0;
+
+// camera
+vec3 gCamPosition(0.0f, 0.0f, Params::cam_height);
+vec3 gCamEularAngle(0.0f, 0.0f, 0.0f);
+float gCamFov = 45.0f;
+
 bool gPointModel = false;
 bool gLineModel = false;
-static vec3 gLightPosition(4.0f, 4.0f, 4.0f);
-static double gLastx = 0.0, gLasty = 0.0;
-static double gScaleAlpha = 1.0;
 static GLfloat gPointSize(20.0);
 static GLfloat gLineWidth(1.0);
+
+static vec3 gLightPosition(4.0f, 4.0f, 4.0f);
 static double gFPS = 0.0;
-char gModelFilename[1000];
 
 static void MouseHandler(GLFWwindow* window, int button, int action, int mods) {
 	TwEventMouseButtonGLFW(window, button, action, mods);
-	if (action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_LEFT) {
+/*	if (action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_LEFT) {
 		double xpos, ypos;
 		glfwGetCursorPos(window, &xpos, &ypos);
 		gLastx = xpos;
 		gLasty = ypos;
-	}
+	}*/
 }
+const float mousespeed = 1.0;
 static void CursorHandler(GLFWwindow* window, double xpos, double ypos) {
 	TwEventMousePosGLFW(window, xpos, ypos);
-	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
-		double deltax = xpos - gLastx, deltay = ypos - gLasty;
-		gLastx = xpos; gLasty = ypos;
-
-		// Conversion from Euler angles (in radians) to Quaternion
-		vec3 gEulerAnglesDelta(0.01*(deltay), 0.01*(deltax), 0);
-  		//gEulerAngles += gEulerAnglesDelta;
-		quat tmpOrient = quat(gEulerAnglesDelta);
-		gOrientation = tmpOrient * gOrientation;
-
-//		double k = sqrt(1 - pow(gOrientation.w, 2));
-//		gEulerAngles = glm::vec3(gOrientation.x/k, gOrientation.y/k, gOrientation.z/k)+gEulerAnglesDelta;
-//		gEulerAngles += rotate(gOrientation, gEulerAnglesDelta);
-
-		printf("deltax=%.3f deltay=%.3f\n", deltax, deltay);
-		printf("gEularAngle = %.3f %.3f %.3f\n", gEulerAngles.x, gEulerAngles.y, gEulerAngles.z);
-		printf("gOrientation = %.3f %.3f %.3f %.3f\n", gOrientation.x, gOrientation.y, gOrientation.z, gOrientation.w);
-	}
 }
 static void ScrollHandler(GLFWwindow* window, double xoffset, double yoffset) {
 	TwEventMouseWheelGLFW(window, xoffset, yoffset);
-	gScaleAlpha += 0.05*yoffset;
+/*	gScaleAlpha += 0.05*yoffset;
 	if (gScaleAlpha < 0.01) gScaleAlpha = 0.01f;
-	printf("Scale=%.3f xoffset=%.3f\n", gScaleAlpha, yoffset);
+	printf("Scale=%.3f xoffset=%.3f\n", gScaleAlpha, yoffset);*/
 }
 static void KeyHandler(GLFWwindow* window, int key, int scancode, int action, int mods) {
 	TwEventKeyGLFW(key, action);
-	double scale = 0.3f;
+  	/*double scale = 0.3f;
 	if (action == GLFW_PRESS)
 		switch (key) {
-		case GLFW_KEY_UP: {
-			gPosition.y += scale;
+		case GLFW_KEY_W: {
+			gCamPosition.x += scale;
 			break;
 		}
-		case GLFW_KEY_DOWN: {
-			gPosition.y -= scale;
+		case GLFW_KEY_S: {
+			gCamPosition.x -= scale;
 			break;
 		}
-		case GLFW_KEY_LEFT: {
-			gPosition.x -= scale;
+		case GLFW_KEY_A: {
+			gCamPosition.y += scale;
 			break;
 		}
-		case GLFW_KEY_RIGHT: {
-			gPosition.x += scale;
+		case GLFW_KEY_D: {
+			gCamPosition.y -= scale;
 			break;
 		}
 		default: {
 		}
-		}
+		} */
 }
+
+void movementCalc(glm::mat4 &ProjectionMatrix, glm::mat4 &ViewMatrix){
+	static double lastTime = glfwGetTime();
+	double currentTime = glfwGetTime();
+	float deltaTime = float(currentTime - lastTime);
+
+	double xpos, ypos;
+	glfwGetCursorPos(window, &xpos, &ypos);
+	glfwSetCursorPos(window, 1024/2, 768/2);
+	gCamEularAngle.x += Params::mouseSpeed * float(1024/2-xpos);
+	gCamEularAngle.y += Params::mouseSpeed * float(768/2-ypos);
+
+	glm::vec3 direction(
+		cos(gCamEularAngle.x),
+		sin(gCamEularAngle.x),
+		sin(gCamEularAngle.y)
+	);
+	glm::vec3 right = glm::vec3(
+		cos(1.57f+gCamEularAngle.x),
+		sin(1.57f+gCamEularAngle.x),
+		0
+	);
+	
+	if (glfwGetKey( window, GLFW_KEY_W) == GLFW_PRESS){
+		gCamPosition += direction * deltaTime * Params::speed;
+	}
+	if (glfwGetKey( window, GLFW_KEY_S) == GLFW_PRESS){
+		gCamPosition -= direction * deltaTime * Params::speed;
+	}
+	if (glfwGetKey( window, GLFW_KEY_A) == GLFW_PRESS){
+		gCamPosition += right * deltaTime * Params::speed;
+	}
+	if (glfwGetKey( window, GLFW_KEY_D) == GLFW_PRESS){
+		gCamPosition -= right * deltaTime * Params::speed;
+	}
+	gCamPosition.z = Params::cam_height;
+
+	ProjectionMatrix = glm::perspective(gCamFov, 4.0f / 3.0f, 0.1f, 100.0f);
+	ViewMatrix       = glm::lookAt(
+								gCamPosition,         
+								gCamPosition+direction,
+								glm::vec3(0,0,1)
+						   );
+
+	lastTime = currentTime;
+}
+
+
 
 std::vector<glm::vec3> vertices;
 std::vector<glm::vec2> uvs;
@@ -123,7 +160,9 @@ GLuint uvbuffer;
 GLuint normalbuffer;
 GLuint elementbuffer;
 
-void loadModel(char * modelFilename) {
+void loadMap(char * mapFilename) {
+	printf("Loading map %s ...", mapFilename);
+
 	vertices.clear();
 	uvs.clear();
 	normals.clear();
@@ -133,10 +172,12 @@ void loadModel(char * modelFilename) {
 	indexed_uvs.clear();
 	indexed_normals.clear();
 
-	bool res = loadOBJ(modelFilename, vertices, uvs, normals);
+	bool res = parseMap(mapFilename, vertices, uvs, normals);
 
 	indexVBO(vertices, uvs, normals, indices, indexed_vertices, indexed_uvs, indexed_normals);
  
+	printf("vertices size: %d\n", vertices.size());
+	printf("indexed vertices size: %d\n", indexed_vertices.size());
 	// Load it into a VBO
 	glGenBuffers(1, &vertexbuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
@@ -156,70 +197,17 @@ void loadModel(char * modelFilename) {
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned short), &indices[0] , GL_STATIC_DRAW); 
 }
 
-char gModels[10][1000];
-#define __createModelCallBack(ind)\
-	void __modelcallback##ind (void*clientdata) {\
-		loadModel(gModels[ind]);\
-	};
-__createModelCallBack(0)
-__createModelCallBack(1)
-__createModelCallBack(2)
-__createModelCallBack(3)
-__createModelCallBack(4)
-__createModelCallBack(5)
-__createModelCallBack(6)
-__createModelCallBack(7)
-__createModelCallBack(8)
-__createModelCallBack(9)
-TwButtonCallback gModelCallback[10] = { 
-	__modelcallback0,
-	__modelcallback1,
-	__modelcallback2,
-	__modelcallback3,
-	__modelcallback4,
-	__modelcallback5,
-	__modelcallback6,
-	__modelcallback7,
-	__modelcallback8,
-	__modelcallback9
-};
-
-
-char gTextureFilename[1000];
-GLuint gTexture;
-char gTextures[10][1000];
-#define __createTextureCallBack(ind)\
-	void __texturecallback##ind (void*clientdata) {\
-		gTexture=loadBMP_custom(gTextures[ind]);\
-	};
-__createTextureCallBack(0)
-__createTextureCallBack(1)
-__createTextureCallBack(2)
-__createTextureCallBack(3)
-__createTextureCallBack(4)
-__createTextureCallBack(5)
-__createTextureCallBack(6)
-__createTextureCallBack(7)
-__createTextureCallBack(8)
-__createTextureCallBack(9)
-TwButtonCallback gTextureCallback[10] = { 
-	__texturecallback0,
-	__texturecallback1,
-	__texturecallback2,
-	__texturecallback3,
-	__texturecallback4,
-	__texturecallback5,
-	__texturecallback6,
-	__texturecallback7,
-	__texturecallback8,
-	__texturecallback9
-};
-
-
-
-
 int main(void)
 {
+	/*
+	vertices.clear();
+	uvs.clear();
+	normals.clear();
+	parseMap("./Maps/example.txt", vertices, uvs, normals);
+
+	int a; scanf("%d", &a); return 0;
+*/
+
 	// Init GLFW
 	if (!glfwInit()) {
 		fprintf(stderr, "Failed to initialize GLFW\n");
@@ -270,62 +258,6 @@ int main(void)
 	TwAddVarRO(GUI, "Rotation", TW_TYPE_QUAT4F, &gOrientation, "group='Object Information'");
 	// Light Position
 	TwAddVarRW(GUI, "Light Position", TW_TYPE_DIR3F, &gLightPosition, "group='Light Information'");
-	// Models
-	TwAddVarRO(GUI, "Current Model", TW_TYPE_CSSTRING(sizeof(gModelFilename)), gModelFilename, "group=Models label='Current model'");
-	{
-		DIR *dir;
-		struct dirent *ent;
-		dir = opendir(".\\Models\\");
-		int cnt = 0;
-		if (dir != NULL) {
-			while ((ent = readdir(dir)) != NULL) {
-				if (ent->d_type == DT_REG) {
-					if (cnt >= 10) {
-						printf("Can only read 10 models at most");
-						continue;
-					}
-					strcpy(gModelFilename, ".\\Models\\");
-					strcat(gModelFilename, ent->d_name);
-					strcpy(gModels[cnt], gModelFilename);
-					TwAddButton(GUI, ent->d_name, (TwButtonCallback)gModelCallback[cnt], NULL, "group=Models");
-					cnt++;
-				}
-			}
-			closedir(dir);
-		}
-		else {
-			printf("Cannot find Directory Models.\n");
-			return -1;
-		}
-	}
-	// Textures 
-	TwAddVarRO(GUI, "Current Texture", TW_TYPE_CSSTRING(sizeof(gTextureFilename)), gTextureFilename, "group=Textures label='Current texture'");
-	{
-		DIR *dir;
-		struct dirent *ent;
-		dir = opendir(".\\Textures\\");
-		int cnt = 0;
-		if (dir != NULL) {
-			while ((ent = readdir(dir)) != NULL) {
-				if (ent->d_type == DT_REG) {
-					if (cnt >= 10) {
-						printf("Can only read 10 texture at most");
-						continue;
-					}
-					strcpy(gTextureFilename, ".\\Textures\\");
-					strcat(gTextureFilename, ent->d_name);
-					strcpy(gTextures[cnt], gTextureFilename);
-					TwAddButton(GUI, ent->d_name, (TwButtonCallback)gTextureCallback[cnt], NULL, "group=Textures");
-					cnt++;
-				}
-			}
-			closedir(dir);
-		}
-		else {
-			printf("Cannot find Directory Models.\n");
-			return -1;
-		}
-	}
 
 
 	// Callback functions
@@ -363,14 +295,14 @@ int main(void)
 	GLuint vertexNormal_modelspaceID = glGetAttribLocation(programID, "vertexNormal_modelspace");
  
 	// Load the texture
-	//gTexture = loadBMP_custom(".\\Textures\\rock0.bmp");
+	GLuint gTexture = loadBMP_custom(".\\Textures\\rock0.bmp");
 	//GLuint Texture = loadDDS("uvmap.DDS");
 	
 	// Get a handle for our "myTextureSampler" uniform
 	GLuint TextureID  = glGetUniformLocation(programID, "myTextureSampler");
  
 	// Load Model
-	loadModel(gModelFilename);
+	loadMap("./Maps/example.txt");
 
 	// Get a handle for our "LightPosition" uniform
 	glUseProgram(programID);
@@ -399,13 +331,10 @@ int main(void)
 		// Use our shader
 		glUseProgram(programID);
  
-		glm::mat4 ProjectionMatrix = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 100.0f);
-		glm::mat4 ViewMatrix = glm::lookAt(
-			glm::vec3( 0, 0, 10),
-			glm::vec3( 0, 0, 0 ),
-			glm::vec3( 0, 1, 0 ) 
-		);
- 
+		glm::mat4 ProjectionMatrix;// = getProjectionMatrix();
+		glm::mat4 ViewMatrix;// = getViewMatrix();
+		movementCalc(ProjectionMatrix, ViewMatrix);
+
 		// Bind our texture in Texture Unit 0
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, gTexture);
@@ -456,11 +385,12 @@ int main(void)
  
 
 		{ // Quaternion
-			glm::mat4 RotationMatrix = mat4_cast(gOrientation);
-			glm::mat4 TranslationMatrix = translate(mat4(), gPosition); // A bit to the right
+/*			glm::mat4 RotationMatrix = mat4_cast(gOrientation);
+			glm::mat4 TranslationMatrix = translate(mat4(), gPosition);
 			glm::mat4 ScalingMatrix = scale(mat4(), vec3(gScaleAlpha));
-			glm::mat4 ModelMatrix = TranslationMatrix * RotationMatrix * ScalingMatrix;
- 
+			glm::mat4 ModelMatrix = TranslationMatrix * RotationMatrix * ScalingMatrix; */
+
+			glm::mat4 ModelMatrix = glm::mat4(1.0);
 			glm::mat4 MVP = ProjectionMatrix * ViewMatrix * ModelMatrix;
  
 			// Send our transformation to the currently bound shader, 

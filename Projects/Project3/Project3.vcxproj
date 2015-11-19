@@ -131,6 +131,7 @@
     <ClCompile Include="..\common\texture.cpp" />
     <ClCompile Include="..\common\vboindexer.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="mapParser.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\common\controls.hpp" />
@@ -141,6 +142,8 @@
     <ClInclude Include="..\common\text2D.hpp" />
     <ClInclude Include="..\common\texture.hpp" />
     <ClInclude Include="..\common\vboindexer.hpp" />
+    <ClInclude Include="mapParser.h" />
+    <ClInclude Include="parameters.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

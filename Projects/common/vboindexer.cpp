@@ -115,7 +115,7 @@ void indexVBO(
 	
 		// Try to find a similar vertex in out_XXXX
 		unsigned short index;
-		bool found = getSimilarVertexIndex_fast( packed, VertexToOutIndex, index);
+		bool found = getSimilarVertexIndex_fast(packed, VertexToOutIndex, index);
 
 		if ( found ){ // A similar vertex is already in the VBO, use it instead !
 			out_indices.push_back( index );
