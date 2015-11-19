@@ -47,6 +47,7 @@ double gScaleAlpha = 1.0;
 vec3 gCamPosition(0.0f, 0.0f, Params::cam_height);
 vec3 gCamEularAngle(0.0f, 0.0f, 0.0f);
 float gCamFov = 45.0f;
+glm::vec3 gCamSpeed(0.0f, 0.0f, 0.0f);
 
 bool gPointModel = false;
 bool gLineModel = false;
@@ -101,7 +102,7 @@ static void KeyHandler(GLFWwindow* window, int key, int scancode, int action, in
 		} */
 }
 
-void movementCalc(glm::mat4 &ProjectionMatrix, glm::mat4 &ViewMatrix){
+void movementCalc(glm::mat4 &ProjectionMatrix, glm::mat4 &ViewMatrix, glm::vec3 &light){
 	static double lastTime = glfwGetTime();
 	double currentTime = glfwGetTime();
 	float deltaTime = float(currentTime - lastTime);
@@ -124,17 +125,23 @@ void movementCalc(glm::mat4 &ProjectionMatrix, glm::mat4 &ViewMatrix){
 	);
 	
 	if (glfwGetKey( window, GLFW_KEY_W) == GLFW_PRESS){
-		gCamPosition += direction * deltaTime * Params::speed;
+		gCamSpeed += direction * deltaTime * Params::accelerate;
 	}
 	if (glfwGetKey( window, GLFW_KEY_S) == GLFW_PRESS){
-		gCamPosition -= direction * deltaTime * Params::speed;
+		gCamSpeed  -= direction * deltaTime * Params::accelerate;
 	}
 	if (glfwGetKey( window, GLFW_KEY_A) == GLFW_PRESS){
-		gCamPosition += right * deltaTime * Params::speed;
+		gCamSpeed += right * deltaTime * Params::accelerate;
 	}
 	if (glfwGetKey( window, GLFW_KEY_D) == GLFW_PRESS){
-		gCamPosition -= right * deltaTime * Params::speed;
+		gCamSpeed -= right * deltaTime * Params::accelerate;
 	}
+
+	gCamSpeed.x *=  Params::fiction;
+	gCamSpeed.y *= Params::fiction;
+
+	gCamPosition += gCamSpeed;
+
 	gCamPosition.z = Params::cam_height;
 
 	ProjectionMatrix = glm::perspective(gCamFov, 4.0f / 3.0f, 0.1f, 100.0f);
@@ -143,6 +150,8 @@ void movementCalc(glm::mat4 &ProjectionMatrix, glm::mat4 &ViewMatrix){
 								gCamPosition+direction,
 								glm::vec3(0,0,1)
 						   );
+
+	light = gCamPosition + 3.0f * direction + glm::vec3(0, 0, 3);
 
 	lastTime = currentTime;
 }
@@ -179,6 +188,7 @@ void loadMap(char * mapFilename) {
 	gLightPosition = glm::vec3(map.n / 2 * Params::cell_width, 
 		map.m / 2* Params::cell_width, 
 		6);
+	gCamPosition = glm::vec3(map.sx, map.sy, 0);
 
 	indexVBO(vertices, uvs, normals, indices, indexed_vertices, indexed_uvs, indexed_normals);
  
@@ -301,7 +311,7 @@ int main(void)
 	GLuint vertexNormal_modelspaceID = glGetAttribLocation(programID, "vertexNormal_modelspace");
  
 	// Load the texture
-	GLuint gTexture = loadBMP_custom(".\\Textures\\rock0.bmp");
+	GLuint gTexture = loadBMP_custom(".\\Textures\\rock2.bmp");
 	//GLuint Texture = loadDDS("uvmap.DDS");
 	
 	// Get a handle for our "myTextureSampler" uniform
@@ -339,7 +349,7 @@ int main(void)
  
 		glm::mat4 ProjectionMatrix;// = getProjectionMatrix();
 		glm::mat4 ViewMatrix;// = getViewMatrix();
-		movementCalc(ProjectionMatrix, ViewMatrix);
+		movementCalc(ProjectionMatrix, ViewMatrix, gLightPosition);
 
 		// Bind our texture in Texture Unit 0
 		glActiveTexture(GL_TEXTURE0);
