@@ -16,6 +16,9 @@
     <Filter Include="源文件\Common">
       <UniqueIdentifier>{ad4e5ff2-de07-46f7-ace0-d8a87ae31710}</UniqueIdentifier>
     </Filter>
+    <Filter Include="源文件\Shaders">
+      <UniqueIdentifier>{ab5ae747-4700-4d9a-9037-2edf1ca6f032}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -45,7 +48,22 @@
     <ClCompile Include="..\common\vboindexer.cpp">
       <Filter>源文件\Common</Filter>
     </ClCompile>
-    <ClCompile Include="mapParser.cpp">
+    <ClCompile Include="handlers.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CObj.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CMap.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CShader.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CTexture.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CSkybox.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -74,10 +92,25 @@
     <ClInclude Include="..\common\vboindexer.hpp">
       <Filter>源文件\Common</Filter>
     </ClInclude>
-    <ClInclude Include="mapParser.h">
+    <ClInclude Include="parameters.h">
       <Filter>源文件</Filter>
     </ClInclude>
-    <ClInclude Include="parameters.h">
+    <ClInclude Include="handlers.h">
+      <Filter>源文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CObj.h">
+      <Filter>源文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CMap.h">
+      <Filter>源文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CShader.h">
+      <Filter>源文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CTexture.h">
+      <Filter>源文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CSkybox.h">
       <Filter>源文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -85,5 +118,13 @@
     <Text Include="..\WorkDir\Maps\example.txt">
       <Filter>资源文件</Filter>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\WorkDir\StandardShading.fragmentshader">
+      <Filter>源文件\Shaders</Filter>
+    </None>
+    <None Include="..\WorkDir\StandardShading.vertexshader">
+      <Filter>源文件\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
