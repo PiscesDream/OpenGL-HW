@@ -1,5 +1,6 @@
 #include "CObj.h"
 #include "../common/vboindexer.hpp"
+#include "../common/objloader.hpp"
 
 CObj::CObj() {
 	vertices.clear();
@@ -12,9 +13,20 @@ CObj::CObj() {
 	indexed_normals.clear();
 
 	bufferExisted = false;
+	ModelMatrix = glm::mat4(1.0f);
+}
+
+void CObj::loadObj(const char * filename) {
+	loadOBJ(filename, vertices, uvs, normals);
+	getIndex();
+	getBuffer();
 }
 
 void CObj::getIndex() {
+	indexed_normals.clear();
+	indexed_uvs.clear();
+	indexed_vertices.clear();
+	indices.clear();
 	indexVBO(vertices, uvs, normals, indices, indexed_vertices, indexed_uvs, indexed_normals);
 	vertices.clear();
 	uvs.clear();
@@ -43,13 +55,17 @@ void CObj::getBuffer() {
 	bufferExisted = true;
 }
 
-CObj::~CObj() {
+void CObj::releaseBuffer() {
 	if (vertexbuffer) {
 		glDeleteBuffers(1, &vertexbuffer);
 		glDeleteBuffers(1, &uvbuffer);
 		glDeleteBuffers(1, &normalbuffer);
 		glDeleteBuffers(1, &elementbuffer);
 	}
+}
+
+CObj::~CObj() {
+	this->releaseBuffer();
 }
 
 void CObj::enableAttr(CShader & shader) {
@@ -99,6 +115,13 @@ void CObj::disableAttr() {
 	glDisableVertexAttribArray(2);
 }
 
+void CObj::drawWithTexture(GLenum mode, CShader & shader) {
+	texture.activateTexture();
+	enableAttr(shader);
+	draw(mode);
+	disableAttr();
+}
+
 void CObj::draw(GLenum mode) {
 	glDrawElements(
 		mode,      // mode
@@ -109,5 +132,5 @@ void CObj::draw(GLenum mode) {
 }
 
 void CObj::loadTexture(const char * filename, CShader & shader) {
-	texture = CTexture(filename, shader);
+	texture.load(filename, shader);
 }

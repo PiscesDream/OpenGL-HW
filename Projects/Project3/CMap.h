@@ -26,8 +26,8 @@ public:
 
 	CMap();
 	~CMap();
-	bool parseMap(const char * filename, CObj & obj);
-	void loadMap(const char * filename, CObj & obj);
+	bool parseMap(const char * filename, CObj & wobj, CObj & gobj);
+	void loadMap(const char * filename, CObj & wobj, CObj & gobj);
 
 	int fetchPointType(glm::vec3 p);
 	float fetchPointHeight(glm::vec3 p);

@@ -18,6 +18,12 @@ void CursorHandler(GLFWwindow* window, double xpos, double ypos) {
 }
 void ScrollHandler(GLFWwindow* window, double xoffset, double yoffset) {
 	TwEventMouseWheelGLFW(window, xoffset, yoffset);
+	extern float gCamFov;
+	printf("%.3f %.3f\n", xoffset, yoffset);
+	gCamFov -= yoffset*2;
+	if (gCamFov > 179) gCamFov = 179;
+	if (gCamFov < 1) gCamFov = 1;
+
 /*	gScaleAlpha += 0.05*yoffset;
 	if (gScaleAlpha < 0.01) gScaleAlpha = 0.01f;
 	printf("Scale=%.3f xoffset=%.3f\n", gScaleAlpha, yoffset);*/

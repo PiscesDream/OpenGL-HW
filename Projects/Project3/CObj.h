@@ -30,12 +30,17 @@ public:
 	~CObj();
 	void getIndex();
 	void getBuffer();
-	void CObj::enableAttr(CShader & shader);
-	void CObj::disableAttr();
-	void CObj::draw(GLenum mode);
-
+	void releaseBuffer(); 
+	void enableAttr(CShader & shader);
+	void disableAttr();
+	void loadObj(const char *);
 	void loadTexture(const char *, CShader &);
 	CTexture texture;
+
+	void draw(GLenum mode);
+	void drawWithTexture(GLenum mode, CShader & shader);
+
+	glm::mat4 ModelMatrix;
 };
 
 #endif

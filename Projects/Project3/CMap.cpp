@@ -58,7 +58,7 @@ int CMap::fetchPointType(glm::vec3 p) {
 }
 
 
-bool CMap::parseMap(const char * filename, CObj & obj) {
+bool CMap::parseMap(const char * filename, CObj & wobj, CObj & gobj) {
     ifstream file(filename);
 	if (!file.is_open()) return false;
 	
@@ -103,15 +103,13 @@ bool CMap::parseMap(const char * filename, CObj & obj) {
 			for (int j = 0; j <= m + 2; ++j) {
 				double dist = sqrt((cx-i)*(cx-i)+(cy-j)*(cy-j));
 				double added = float(rand()) / RAND_MAX;
-				added = exp(-dist/10) * Params::hill_height;
+				added = exp(-dist/Params::hill_norm) * Params::hill_height;
 				maph[i][j] += added;
 			}
 	}
-
-
 	for (int i = 0; i <= n + 2; ++i)
 		for (int j = 0; j <= m + 2; ++j)
-			AddSameNormalRect(obj, Params::cell_width*vec3(i, j, 0) + vec3(0, 0, maph[i][j]),
+			AddSameNormalRect(gobj, Params::cell_width*vec3(i, j, 0) + vec3(0, 0, maph[i][j]),
 				Params::cell_width*vec3(i - 1, j, 0) + vec3(0, 0, maph[i - 1][j]),
 				Params::cell_width*vec3(i, j - 1, 0) + vec3(0, 0, maph[i][j - 1]),
 				Params::cell_width*vec3(i - 1, j - 1, 0) + vec3(0, 0, maph[i - 1][j - 1]),
@@ -129,6 +127,8 @@ bool CMap::parseMap(const char * filename, CObj & obj) {
 					maph[i][j] = acc/8.0;
 				}
 	}
+
+
 
 
 	// Walls 
@@ -152,7 +152,7 @@ bool CMap::parseMap(const char * filename, CObj & obj) {
 					p2 += vec3(0, 0, this->fetchPointHeight(p2));
 					glm::vec3 p3 = p1; p3.z += Params::cell_height;
 					glm::vec3 p4 = p2; p4.z += Params::cell_height;
-					AddSameNormalRect(obj, p1, p2, p3, p4, glm::vec3(kxy[k][0][0], kxy[k][0][1], 0));
+					AddSameNormalRect(wobj, p1, p2, p3, p4, glm::vec3(kxy[k][0][0], kxy[k][0][1], 0));
 				}
 
 				glm::vec3 hh = glm::vec3(0, 0, Params::cell_height);
@@ -160,21 +160,21 @@ bool CMap::parseMap(const char * filename, CObj & obj) {
 				glm::vec3 p2 = glm::vec3(i+1, j, 0) * Params::cell_width+hh;
 				glm::vec3 p3 = glm::vec3(i, j+1, 0) * Params::cell_width+hh;
 				glm::vec3 p4 = glm::vec3(i+1, j+1, 0) * Params::cell_width+hh;
-				AddSameNormalRect(obj, p1, p2, p3, p4, glm::vec3(0, 0, 1));
+				AddSameNormalRect(wobj, p1, p2, p3, p4, glm::vec3(0, 0, 1));
 			}
 }
 
 extern glm::vec3 gLightPosition, gCamPosition;
-void CMap::loadMap(const char * mapFilename, CObj & obj) {
+void CMap::loadMap(const char * mapFilename, CObj & wobj, CObj & gobj) {
 	printf("Loading map %s ...", mapFilename);
-	parseMap(mapFilename, obj);
+	parseMap(mapFilename, wobj, gobj);
 
-	obj.getIndex();
-	obj.getBuffer();
+	wobj.getIndex();
+	wobj.getBuffer();
+
+	gobj.getIndex();
+	gobj.getBuffer();
 
 	gLightPosition = glm::vec3(n / 2 * Params::cell_width, m / 2 * Params::cell_width, 6);
 	gCamPosition = glm::vec3(sx* Params::cell_width, sy* Params::cell_width, 0);
-
-	printf("vertices size: %d\n", obj.vertices.size());
-	printf("indexed vertices size: %d\n", obj.indexed_vertices.size());
 }

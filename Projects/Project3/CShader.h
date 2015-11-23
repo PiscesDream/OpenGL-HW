@@ -5,6 +5,7 @@
 #define __CSHADER__
 
 #include "GL/glew.h"
+#include <glm/glm.hpp>
 
 class CShader {
 public:
@@ -23,6 +24,12 @@ public:
 	~CShader();
 	void useProgram();
 	void calcMVP();
+	void calcMVP(glm::mat4 &model);
+
+	glm::mat4 ProjectionMatrix;
+	glm::mat4 ViewMatrix;
+	glm::mat4 ModelMatrix; // of the whole world
+	glm::mat4 MVP;
 };
  
 

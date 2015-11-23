@@ -70,6 +70,29 @@ bool loadOBJ(
 			fgets(buffer, 1000, file);
 
 			{
+				// f v1/vt1/vn1 v2/vt2/vn2 v3/vt3/vn3, v4/vt4/vn4
+				unsigned int vertexIndex[4], uvIndex[4], normalIndex[4];
+				int matches = sscanf(buffer, 
+					"%d/%d/%d %d/%d/%d %d/%d/%d %d/%d/%d\n", 
+					&vertexIndex[0], &uvIndex[0], &normalIndex[0], 
+					&vertexIndex[1], &uvIndex[1], &normalIndex[1], 
+					&vertexIndex[2], &uvIndex[2], &normalIndex[2],
+					&vertexIndex[3], &uvIndex[3], &normalIndex[3]);
+				if (matches == 12) {
+					success = true;
+					for (int k = 0; k <= 3; ++k)
+						for (int i = 0; i <= 3; ++i) 
+							if (i != k) {
+								vertexIndices.push_back(vertexIndex[i]);
+								uvIndices.push_back(uvIndex[i]);
+								normalIndices.push_back(normalIndex[i]);
+							}
+
+
+				}
+			}
+
+			if (!success) {
 				// f v1/vt1/vn1 v2/vt2/vn2 v3/vt3/vn3
 				unsigned int vertexIndex[3], uvIndex[3], normalIndex[3];
 				int matches = sscanf(buffer, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &vertexIndex[0], &uvIndex[0], &normalIndex[0], &vertexIndex[1], &uvIndex[1], &normalIndex[1], &vertexIndex[2], &uvIndex[2], &normalIndex[2]);

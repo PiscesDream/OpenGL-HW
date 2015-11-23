@@ -66,6 +66,9 @@
     <ClCompile Include="CSkybox.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="CParticle.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\common\controls.hpp">
@@ -111,6 +114,9 @@
       <Filter>源文件</Filter>
     </ClInclude>
     <ClInclude Include="CSkybox.h">
+      <Filter>源文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CParticle.h">
       <Filter>源文件</Filter>
     </ClInclude>
   </ItemGroup>

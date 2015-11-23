@@ -11,9 +11,10 @@ class CTexture {
 public:
 	GLuint gTexture; 
 	GLuint TextureID;
+	bool loaded;
 
+	void load(const char *, CShader &);
 	CTexture();
-	CTexture(const char *, CShader &);
 	~CTexture();
 	void activateTexture();
 };

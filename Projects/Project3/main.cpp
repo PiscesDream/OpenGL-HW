@@ -1,4 +1,5 @@
 // Include standard headers
+#include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <vector>
@@ -30,6 +31,7 @@ using namespace glm;
 #include "CShader.h"
 #include "CTexture.h"
 #include "CSkybox.h"
+#include "CParticle.h"
 bool init();
 
 // global variables
@@ -51,7 +53,6 @@ vec3 gLightPosition(0.0f, 0.0f, 5.0f);
 double gFPS = 0.0;
 
 // objects
-CObj obj_wall;
 CMap map;
 
 int main(void)
@@ -69,8 +70,11 @@ int main(void)
 
 	// Create and compile our GLSL program from the shaders
 	CShader shader( "StandardShading.vertexshader", "StandardShading.fragmentshader" );
-	map.loadMap("./Maps/example.txt", obj_wall);
+	CObj obj_wall;
+	CObj obj_ground;
+	map.loadMap("./Maps/example.txt", obj_wall, obj_ground);
 	obj_wall.loadTexture(".\\Textures\\wall1.bmp", shader);
+	obj_ground.loadTexture(".\\Textures\\rock1.bmp", shader);
 
 	//CSkybox skybox(0, 0, 20, 20, 20);
 
@@ -81,6 +85,19 @@ int main(void)
 	CObj & obj_skybox = skybox.obj;
 	obj_skybox.loadTexture(".\\Textures\\skybox1.bmp", shader);
 
+	CParticle obj_snow(Params::p_count, Params::p_rate,
+		vec2(0, (map.n + 1) * Params::cell_width),
+		vec2(0, (map.m + 1) * Params::cell_width),
+		vec2(Params::skybox_height-Params::sun_margin), 
+		vec3(0, 0, -Params::p_speed), 
+		vec3(0, 0, -Params::p_noise));
+	obj_snow.loadTexture(".\\Textures\\snow.bmp", shader);
+
+	/*
+	CObj obj_spongebob;
+	obj_spongebob.loadObj(".\\Models\\SpongeBob_obj\\Spongebob.obj");
+	obj_spongebob.loadTexture(".\\Models\\SpongeBob_obj\\Spongebob.bmp", shader);
+	*/
 
 	GLuint LightID = glGetUniformLocation(shader.programID, "LightPosition_worldspace");
 	//gLightPosition = vec3(map.n / 2 * Params::cell_width, map.m / 2 * Params::cell_width, skybox.height-Params::sun_margin);
@@ -92,21 +109,20 @@ int main(void)
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
  
 		shader.useProgram();
-		shader.calcMVP();
 
 		glUniform3f(LightID, gLightPosition.x, gLightPosition.y, gLightPosition.z);
-		{
-			obj_wall.texture.activateTexture();
-			obj_wall.enableAttr(shader);
-			obj_wall.draw(GL_TRIANGLES);
-			obj_wall.disableAttr();
-		}
-		{
-			obj_skybox.texture.activateTexture();
-			obj_skybox.enableAttr(shader);
-			obj_skybox.draw(GL_TRIANGLES);
-			obj_skybox.disableAttr();
-		}
+
+		shader.calcMVP();
+		obj_wall.drawWithTexture(GL_TRIANGLES, shader);
+		obj_ground.drawWithTexture(GL_TRIANGLES, shader);
+		obj_skybox.drawWithTexture(GL_TRIANGLES, shader);
+
+		obj_snow.step();
+		if (obj_snow.indexed_normals.size() > 0)
+			obj_snow.drawWithTexture(GL_TRIANGLES, shader);
+
+//		shader.calcMVP(obj_spongebob.ModelMatrix);
+//		obj_spongebob.drawWithTexture(GL_TRIANGLES, shader);
  
 		TwDraw();
 		glfwSwapBuffers(window);
@@ -122,6 +138,8 @@ int main(void)
 
 
 bool init() {
+	srand(time(0));
+
 	if (!glfwInit()) {
 		fprintf(stderr, "Failed to initialize GLFW\n");
 		return false;
@@ -152,25 +170,15 @@ bool init() {
 	TwWindowSize(1024, 768);
 	TwBar * GUI = TwNewBar("Quick Menu");
 	{
-		int size[] = { 320, 700 };
+		int size[] = { 320, 400};
 		TwSetParam(GUI, NULL, "size", TW_PARAM_INT32, 2, size);
 		int width = 180; // pixels
 		TwSetParam(GUI, NULL, "valueswidth", TW_PARAM_INT32, 1, &width);
 	}
 	// FPS
-	TwAddVarRW(GUI, "FPS", TW_TYPE_DOUBLE, &gFPS, "group='FPS'");
+	TwAddVarRO(GUI, "FPS", TW_TYPE_DOUBLE, &gFPS, "group='FPS'");
 	// display mode
-	TwAddVarRW(GUI, "Point Model", TW_TYPE_BOOL8, &gPointModel, "group='Display Mode' ");
-	TwAddVarRW(GUI, "Point Size", TW_TYPE_FLOAT, &gPointSize, "group='Display Mode' min=0.1");
-	TwAddSeparator(GUI, NULL, "group='Display Mode'");
-	TwAddVarRW(GUI, "Line Model", TW_TYPE_BOOL8, &gLineModel, "group='Display Mode' ");
-	TwAddVarRW(GUI, "Line Width", TW_TYPE_FLOAT, &gLineWidth, "group='Display Mode' min=0.1");
-	// Object Information
-	TwAddVarRW(GUI, "Zoom", TW_TYPE_DOUBLE, &gScaleAlpha, "group='Object Information' min=0.01");
-	TwAddVarRW(GUI, "Position", TW_TYPE_DIR3F, &gPosition, "group='Object Information'");
-	TwAddVarRO(GUI, "Rotation", TW_TYPE_QUAT4F, &gOrientation, "group='Object Information'");
-	// Light Position
-	TwAddVarRW(GUI, "Light Position", TW_TYPE_DIR3F, &gLightPosition, "group='Light Information'");
+	TwAddVarRO(GUI, "Position", TW_TYPE_DIR3F, &gCamPosition, "group='Object Information'");
 
 	// Callback functions
 	glfwSetMouseButtonCallback(window, (GLFWmousebuttonfun)TwEventMouseButtonGLFW); // - Directly redirect GLFW mouse button events to AntTweakBar
