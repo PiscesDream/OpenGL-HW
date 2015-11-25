@@ -16,6 +16,9 @@
     <Filter Include="源文件\Common">
       <UniqueIdentifier>{94d5e67c-183e-4806-891d-a9147fe42876}</UniqueIdentifier>
     </Filter>
+    <Filter Include="源文件\Auxiliary">
+      <UniqueIdentifier>{d43c5101-14a2-4a67-a3c5-07f3c8178168}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -45,6 +48,18 @@
     <ClCompile Include="..\common\vboindexer.cpp">
       <Filter>源文件\Common</Filter>
     </ClCompile>
+    <ClCompile Include="..\Auxiliary\CObj.cpp">
+      <Filter>源文件\Auxiliary</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Auxiliary\CShader.cpp">
+      <Filter>源文件\Auxiliary</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Auxiliary\CTexture.cpp">
+      <Filter>源文件\Auxiliary</Filter>
+    </ClCompile>
+    <ClCompile Include="handlers.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\common\controls.hpp">
@@ -70,6 +85,18 @@
     </ClInclude>
     <ClInclude Include="..\common\vboindexer.hpp">
       <Filter>源文件\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Auxiliary\CObj.h">
+      <Filter>源文件\Auxiliary</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Auxiliary\CShader.h">
+      <Filter>源文件\Auxiliary</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Auxiliary\CTexture.h">
+      <Filter>源文件\Auxiliary</Filter>
+    </ClInclude>
+    <ClInclude Include="handlers.h">
+      <Filter>源文件</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

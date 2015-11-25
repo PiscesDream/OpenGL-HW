@@ -5,7 +5,6 @@
 #include <vector>
  
 // Include GLEW
-#define GLEW_STATIC
 #include <GL/glew.h>
  
 // Include GLFW
@@ -21,15 +20,16 @@ GLFWwindow* window;
 using namespace glm;
  
 // Include AntTweakBar
-#define TW_STATIC 
 #include <AntTweakBar.h>
  
 #include <dirent.h>
-#include "CMap.h"
-#include "parameters.h"
+
+#include <CObj.h>
+#include <CTexture.h>
+#include <CShader.h>
 #include "handlers.h"
-#include "CShader.h"
-#include "CTexture.h"
+#include "parameters.h"
+#include "CMap.h"
 #include "CSkybox.h"
 #include "CParticle.h"
 bool init();
@@ -61,15 +61,13 @@ int main(void)
 		return EXIT_FAILURE;
 
 	// GLFW settings 
-	glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
-	glfwSetCursorPos(window, 1024/2, 768/2);
-	glClearColor(47.0/256.0, 56.0/256.0, 85.0/256.0, 0.0f);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS); 
 	//glEnable(GL_CULL_FACE);
 
 	// Create and compile our GLSL program from the shaders
 	CShader shader( "StandardShading.vertexshader", "StandardShading.fragmentshader" );
+	shader.setLight(140000.0f);
 	CObj obj_wall;
 	CObj obj_ground;
 	map.loadMap("./Maps/example.txt", obj_wall, obj_ground);
@@ -112,6 +110,7 @@ int main(void)
 
 		glUniform3f(LightID, gLightPosition.x, gLightPosition.y, gLightPosition.z);
 
+		movementCalc(shader.ProjectionMatrix, shader.ViewMatrix);
 		shader.calcMVP();
 		obj_wall.drawWithTexture(GL_TRIANGLES, shader);
 		obj_ground.drawWithTexture(GL_TRIANGLES, shader);
@@ -150,6 +149,7 @@ bool init() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+
 	window = glfwCreateWindow(1024, 768, "Project3", NULL, NULL);
 	if (window == NULL) {
 		fprintf(stderr, "Failed to open GLFW window. Assure your display driver is compatible with GLFW3.3.\n");
@@ -167,7 +167,9 @@ bool init() {
 
 	// Initialize the GUI
 	TwInit(TW_OPENGL_CORE, NULL);
-	TwWindowSize(1024, 768);
+	int width, height;
+	glfwGetWindowSize(window, &width, &height);
+	TwWindowSize(width, height);
 	TwBar * GUI = TwNewBar("Quick Menu");
 	{
 		int size[] = { 320, 400};
@@ -188,5 +190,8 @@ bool init() {
 	glfwSetScrollCallback(window, (GLFWscrollfun)ScrollHandler);  
 	glfwSetKeyCallback(window, (GLFWkeyfun)KeyHandler); 
 
+	glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
+	glfwSetCursorPos(window, width/2, height/2);
+	glClearColor(47.0/256.0, 56.0/256.0, 85.0/256.0, 0.0f);
 	return true;
 }

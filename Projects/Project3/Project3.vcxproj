@@ -75,11 +75,12 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>
       </SDLCheck>
-      <AdditionalIncludeDirectories>..\External\glm-0.9.4.0;..\External\glfw-3.0.3\include\GLFW;..\External\glew-1.9.0\include;..\External\AntTweakBar-1.16\include;..\External\dirent-1.21\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\External\glm-0.9.4.0;..\External\glfw-3.0.3\include\GLFW;..\External\glew-1.9.0\include;..\External\AntTweakBar-1.16\include;..\External\dirent-1.21\include;..\Auxiliary;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;TW_STATIC;TW_NO_LIB_PRAGMA;TW_NO_DIRECT3D;GLEW_STATIC;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib;glu32.lib;opengl32.lib;..\Libs\glfw3.lib;..\Libs\glew.lib;..\Libs\AntTweakBarStatic.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib;glu32.lib;opengl32.lib;..\Libs\glfw3.lib;..\Libs\GLEW_190.lib;..\Libs\ANTTWEAKBAR_116_OGLCORE_GLFW.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
@@ -122,6 +123,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\Auxiliary\CObj.cpp" />
+    <ClCompile Include="..\Auxiliary\CShader.cpp" />
+    <ClCompile Include="..\Auxiliary\CTexture.cpp" />
     <ClCompile Include="..\common\controls.cpp" />
     <ClCompile Include="..\common\objloader.cpp" />
     <ClCompile Include="..\common\quaternion_utils.cpp" />
@@ -130,16 +134,16 @@
     <ClCompile Include="..\common\text2D.cpp" />
     <ClCompile Include="..\common\texture.cpp" />
     <ClCompile Include="..\common\vboindexer.cpp" />
-    <ClCompile Include="CObj.cpp" />
+    <ClCompile Include="CMap.cpp" />
     <ClCompile Include="CParticle.cpp" />
-    <ClCompile Include="CShader.cpp" />
     <ClCompile Include="CSkybox.cpp" />
-    <ClCompile Include="CTexture.cpp" />
     <ClCompile Include="handlers.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="CMap.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Auxiliary\CObj.h" />
+    <ClInclude Include="..\Auxiliary\CShader.h" />
+    <ClInclude Include="..\Auxiliary\CTexture.h" />
     <ClInclude Include="..\common\controls.hpp" />
     <ClInclude Include="..\common\objloader.hpp" />
     <ClInclude Include="..\common\quaternion_utils.hpp" />
@@ -148,13 +152,10 @@
     <ClInclude Include="..\common\text2D.hpp" />
     <ClInclude Include="..\common\texture.hpp" />
     <ClInclude Include="..\common\vboindexer.hpp" />
-    <ClInclude Include="CObj.h" />
-    <ClInclude Include="CParticle.h" />
-    <ClInclude Include="CShader.h" />
-    <ClInclude Include="CSkybox.h" />
-    <ClInclude Include="CTexture.h" />
-    <ClInclude Include="handlers.h" />
     <ClInclude Include="CMap.h" />
+    <ClInclude Include="CParticle.h" />
+    <ClInclude Include="CSkybox.h" />
+    <ClInclude Include="handlers.h" />
     <ClInclude Include="parameters.h" />
   </ItemGroup>
   <ItemGroup>

@@ -6,10 +6,11 @@ CTexture::CTexture() {
 }
 
 void CTexture::load(const char * filename, CShader &shader) {
-	if (!loaded) {
-		gTexture = loadBMP_custom(filename);
+		if (strstr(filename, "DDS")!=0)
+			gTexture=loadDDS(filename);
+		else
+			gTexture=loadBMP_custom(filename);
 		loaded = true;
-	}
 	TextureID  = glGetUniformLocation(shader.programID, "myTextureSampler");
 }
 

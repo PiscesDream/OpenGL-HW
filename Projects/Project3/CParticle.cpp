@@ -1,5 +1,4 @@
 #include "CParticle.h"
-#include "parameters.h"
 
 inline float rand01() {
 	return float(rand()) / RAND_MAX;
