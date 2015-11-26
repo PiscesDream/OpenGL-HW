@@ -27,7 +27,7 @@ void CParticle::step() {
 		pos[i] += velocity[i];
 
 		// special judge
-		if (pos[i].z < 0) {
+		if (pos[i].z < -5) {
 			// on ground, reset
 			pos[i] = vec3(
 				randWithin(posx),
@@ -59,10 +59,11 @@ CParticle::CParticle(
 	__getTetrahedron(0.5);
 }
 
-#define add(a, b, c, n)\
-	indexed_vertices.push_back(__p[a]+pos[i]);\
-	indexed_vertices.push_back(__p[b]+pos[i]);\
-	indexed_vertices.push_back(__p[c]+pos[i]);\
+#define add(a, b, c, n) {\
+	float _r = float(float(rand())/RAND_MAX);\
+	indexed_vertices.push_back(__p[a]*_r+pos[i]);\
+	indexed_vertices.push_back(__p[b]*_r+pos[i]);\
+	indexed_vertices.push_back(__p[c]*_r+pos[i]);\
 	indexed_uvs.push_back(vec2(0,0));\
 	indexed_uvs.push_back(vec2(1,0));\
 	indexed_uvs.push_back(vec2(0,1));\
@@ -71,7 +72,8 @@ CParticle::CParticle(
 	indexed_normals.push_back(n);\
 	indices.push_back(indexed_vertices.size()-3);\
 	indices.push_back(indexed_vertices.size()-2);\
-	indices.push_back(indexed_vertices.size()-1);
+	indices.push_back(indexed_vertices.size()-1);\
+	}
 
 void CParticle::render() {
 	indexed_normals.clear();

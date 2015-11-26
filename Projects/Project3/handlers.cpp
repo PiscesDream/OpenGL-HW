@@ -60,6 +60,7 @@ extern glm::vec3 gCamEularAngle;
 extern glm::vec3 gCamSpeed;
 extern glm::vec3 gCamPosition;
 extern GLfloat gCamFov;
+static float zspeed;
 
 void movementCalc(glm::mat4 &ProjectionMatrix, glm::mat4 &ViewMatrix){
 	static double lastTime = glfwGetTime();
@@ -95,19 +96,32 @@ void movementCalc(glm::mat4 &ProjectionMatrix, glm::mat4 &ViewMatrix){
 	if (glfwGetKey( window, GLFW_KEY_D) == GLFW_PRESS){
 		gCamSpeed -= right * deltaTime * Params::accelerate;
 	}
-
+	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+		if (zspeed == 0)
+			zspeed = Params::jump_height;
+	}
+	
 	gCamSpeed.x *=  Params::fiction;
 	gCamSpeed.y *= Params::fiction;
 
 
 	{
 		// wall collision
+		gCamSpeed.z = 0;
 		gCamPosition += gCamSpeed;
 		if (map.fetchPointType(gCamPosition) == WALL)
 			gCamSpeed = -gCamSpeed * Params::boundMargin;
 	}
 
-	gCamPosition.z = Params::cam_height + map.fetchPointHeight(gCamPosition);
+	if (zspeed == 0 || gCamPosition.z < Params::cam_height + map.fetchPointHeight(gCamPosition)) {
+		zspeed = 0;
+		gCamPosition.z = Params::cam_height + map.fetchPointHeight(gCamPosition);
+	}
+	else {
+		gCamPosition.z += zspeed;
+		zspeed -= Params::gravity;
+	}
+
 
 
 //lm::mat4 perspective(float fovy, float aspect, float zNear, float zFar);

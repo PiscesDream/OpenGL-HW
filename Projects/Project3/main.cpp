@@ -70,9 +70,17 @@ int main(void)
 	shader.setLight(140000.0f);
 	CObj obj_wall;
 	CObj obj_ground;
-	map.loadMap("./Maps/example.txt", obj_wall, obj_ground);
+	CObj obj_target;
+	//map.parseMap("./Maps/example.txt");
+	map.generateMap(20, 20, 0.8);
+	map.render(obj_wall, obj_ground);
+	map.print();
 	obj_wall.loadTexture(".\\Textures\\wall1.bmp", shader);
 	obj_ground.loadTexture(".\\Textures\\rock1.bmp", shader);
+
+	obj_target.loadObj(".\\Models\\Cube.obj");
+	obj_target.loadTexture(".\\Textures\\uvmap.DDS", shader);
+	obj_target.modelMatrix = glm::translate(obj_target.modelMatrix, vec3(map.ex*Params::cell_width, map.ey*Params::cell_width, map.maph[map.ex][map.ey] * 2+2*Params::cell_height));
 
 	//CSkybox skybox(0, 0, 20, 20, 20);
 
@@ -83,10 +91,11 @@ int main(void)
 	CObj & obj_skybox = skybox.obj;
 	obj_skybox.loadTexture(".\\Textures\\skybox1.bmp", shader);
 
+	printf("%d %d\n", map.n, map.m);
 	CParticle obj_snow(Params::p_count, Params::p_rate,
 		vec2(0, (map.n + 1) * Params::cell_width),
 		vec2(0, (map.m + 1) * Params::cell_width),
-		vec2(Params::skybox_height-Params::sun_margin), 
+		vec2(0, Params::skybox_height-Params::sun_margin), 
 		vec3(0, 0, -Params::p_speed), 
 		vec3(0, 0, -Params::p_noise));
 	obj_snow.loadTexture(".\\Textures\\snow.bmp", shader);
@@ -111,10 +120,14 @@ int main(void)
 		glUniform3f(LightID, gLightPosition.x, gLightPosition.y, gLightPosition.z);
 
 		movementCalc(shader.ProjectionMatrix, shader.ViewMatrix);
-		shader.calcMVP();
+
+		shader.calcMVP(obj_wall.modelMatrix);
 		obj_wall.drawWithTexture(GL_TRIANGLES, shader);
 		obj_ground.drawWithTexture(GL_TRIANGLES, shader);
 		obj_skybox.drawWithTexture(GL_TRIANGLES, shader);
+
+		shader.calcMVP(obj_target.modelMatrix);
+		obj_target.drawWithTexture(GL_TRIANGLES, shader);
 
 		obj_snow.step();
 		if (obj_snow.indexed_normals.size() > 0)

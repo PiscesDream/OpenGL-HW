@@ -30,7 +30,7 @@ namespace Params {
 	const float accelerate = 0.3f;
 	const float fiction = 0.95f;
 
-	const float boundMargin = 2.0;
+	const float boundMargin = 1.0;
 	//const float boundMargin = 0.0;
 	const float lightMargin = 2.0;
 
@@ -40,6 +40,10 @@ namespace Params {
 	const float p_noise = 0.5;
 	const float p_rate = 0.5;
 	const int p_count = 500;
+
+	// jump
+	const float jump_height = 0.3;
+	const float gravity = 0.04;
 }
 
 #endif

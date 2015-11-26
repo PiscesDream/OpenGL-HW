@@ -3,6 +3,7 @@
 #include "../common/objloader.hpp"
 
 CObj::CObj() {
+	modelMatrix = glm::mat4(1.0);
 	vertices.clear();
 	uvs.clear();
 	normals.clear();
@@ -13,7 +14,6 @@ CObj::CObj() {
 	indexed_normals.clear();
 
 	bufferExisted = false;
-	ModelMatrix = glm::mat4(1.0f);
 }
 
 void CObj::loadObj(const char * filename) {

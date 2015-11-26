@@ -26,6 +26,8 @@ public:
 	GLuint normalbuffer;
 	GLuint elementbuffer;
 
+	glm::mat4 modelMatrix;
+
 	CObj();
 	~CObj();
 	void getIndex();
@@ -39,8 +41,6 @@ public:
 
 	void draw(GLenum mode);
 	void drawWithTexture(GLenum mode, CShader & shader);
-
-	glm::mat4 ModelMatrix;
 };
 
 #endif

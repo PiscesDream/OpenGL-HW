@@ -178,6 +178,9 @@ int main(void)
 }
 
 int init() {
+
+
+
 	// Init GLFW
 	if (!glfwInit()) {
 		fprintf(stderr, "Failed to initialize GLFW\n");

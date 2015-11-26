@@ -26,11 +26,15 @@ public:
 
 	CMap();
 	~CMap();
-	bool parseMap(const char * filename, CObj & wobj, CObj & gobj);
-	void loadMap(const char * filename, CObj & wobj, CObj & gobj);
+	void render(CObj & wobj, CObj & gobj);
+	void print();
+	void generateMap(int n, int m, float complexity);
+	bool parseMap(const char * filename);
 
 	int fetchPointType(glm::vec3 p);
 	float fetchPointHeight(glm::vec3 p);
+private:
+	void CMap::split(int bottom, int left, int top, int right);
 };
 
 #endif
